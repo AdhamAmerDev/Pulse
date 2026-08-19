@@ -8,13 +8,11 @@ async function getEvents() {
 function summarize(events: any[]) {
   const totalViews = events.length;
 
-  // count views per URL
   const viewsByUrl: Record<string, number> = {};
   for (const event of events) {
     viewsByUrl[event.url] = (viewsByUrl[event.url] || 0) + 1;
   }
 
-  // count views per device
   const viewsByDevice: Record<string, number> = {};
   for (const event of events) {
     viewsByDevice[event.device] = (viewsByDevice[event.device] || 0) + 1;
