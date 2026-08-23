@@ -5,11 +5,17 @@ function getDeviceType() {
   return "desktop";
 }
 
+function getSiteId() {
+  const script = document.currentScript;
+  return script?.getAttribute("data-site");
+}
+
 const eventData = {
   type: "page_view",
   url: window.location.href,
   referrer: document.referrer || "direct",
   device: getDeviceType(),
+  siteId: getSiteId(),
   timestamp: Date.now(),
 };
 

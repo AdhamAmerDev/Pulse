@@ -10,9 +10,10 @@
 !.yarn/releases
 !.yarn/versions
 data.json
+pulse-v1-todo.md
 # testing
-/coverage
-
+.env
+.env.local
 # next.js
 /.next/
 /out/

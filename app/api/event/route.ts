@@ -1,21 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
-
-const filePath = path.join(process.cwd(), "data.json");
+import { db } from "@/lib/db";
+import { events, sites } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 
 export async function POST(req: NextRequest) {
-  const body = await req.json(); // the data pulse.js sent us
+  const body = await req.json();
 
-  let events = [];
-  if (fs.existsSync(filePath)) {
-    const fileContents = fs.readFileSync(filePath, "utf-8");
-    events = JSON.parse(fileContents);
+  const [site] = await db.select().from(sites).where(eq(sites.id, body.siteId));
+
+  if (!site) {
+    return NextResponse.json({ error: "unknown site" }, { status: 404 });
   }
 
-  events.push(body);
-
-  fs.writeFileSync(filePath, JSON.stringify(events, null, 2));
+  await db.insert(events).values({
+    siteId: body.siteId,
+    type: body.type,
+    url: body.url,
+    referrer: body.referrer,
+    device: body.device,
+  });
 
   return NextResponse.json({ ok: true });
 }

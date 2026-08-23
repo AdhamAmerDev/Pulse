@@ -1,16 +1,18 @@
-import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { NextRequest, NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { events } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 
-const filePath = path.join(process.cwd(), "data.json");
+export async function GET(req: NextRequest) {
+  const siteId = req.nextUrl.searchParams.get("siteId");
 
-export async function GET() {
-  if (!fs.existsSync(filePath)) {
-    return NextResponse.json([]);
+  if (!siteId) {
+    return NextResponse.json({ error: "siteId is required" }, { status: 400 });
   }
 
-  const fileContents = fs.readFileSync(filePath, "utf-8");
-  const events = JSON.parse(fileContents);
-
-  return NextResponse.json(events);
+  const siteEvents = await db
+    .select()
+    .from(events)
+    .where(eq(events.siteId, siteId));
+  return NextResponse.json(siteEvents);
 }
