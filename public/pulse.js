@@ -19,7 +19,7 @@ const eventData = {
   timestamp: Date.now(),
 };
 
-fetch("/api/event", {
+fetch("http://localhost:3000/api/event", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",

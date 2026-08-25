@@ -10,6 +10,9 @@ import {
 export const sites = pgTable("sites", {
   id: uuid("id").defaultRandom().primaryKey(),
   domain: text("domain").notNull(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -31,3 +34,10 @@ export const events = pgTable(
     createdAtIdx: index("created_at_idx").on(table.createdAt),
   }),
 );
+
+export const users = pgTable("users", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  email: text("email").notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});

@@ -1,20 +1,18 @@
-async function getEvents(siteId: string) {
-  const res = await fetch(`http://localhost:3000/api/events?siteId=${siteId}`, {
-    cache: "no-store",
-  });
-  return res.json();
-}
+import ClearDataButton from "@/components/ClearDataButton";
+import { db } from "../../../lib/db";
+import { events } from "../../../lib/db/schema";
+import { eq } from "drizzle-orm";
 
-function summarize(events: any[]) {
-  const totalViews = events.length;
+function summarize(allEvents: any[]) {
+  const totalViews = allEvents.length;
 
   const viewsByUrl: Record<string, number> = {};
-  for (const event of events) {
+  for (const event of allEvents) {
     viewsByUrl[event.url] = (viewsByUrl[event.url] || 0) + 1;
   }
 
   const viewsByDevice: Record<string, number> = {};
-  for (const event of events) {
+  for (const event of allEvents) {
     viewsByDevice[event.device] = (viewsByDevice[event.device] || 0) + 1;
   }
 
@@ -27,8 +25,12 @@ export default async function SiteDashboard({
   params: Promise<{ siteId: string }>;
 }) {
   const { siteId } = await params;
-  const events = await getEvents(siteId);
-  const { totalViews, viewsByUrl, viewsByDevice } = summarize(events);
+
+  const siteEvents = await db
+    .select()
+    .from(events)
+    .where(eq(events.siteId, siteId));
+  const { totalViews, viewsByUrl, viewsByDevice } = summarize(siteEvents);
 
   return (
     <div>
@@ -54,6 +56,7 @@ export default async function SiteDashboard({
           </li>
         ))}
       </ul>
+      <ClearDataButton siteId={siteId} />
     </div>
   );
 }
