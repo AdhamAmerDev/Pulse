@@ -2,6 +2,7 @@ import ClearDataButton from "@/components/ClearDataButton";
 import { db } from "../../../lib/db";
 import { events } from "../../../lib/db/schema";
 import { eq } from "drizzle-orm";
+import ZoomableViewsChart from "@/components/ZoomableViewsChart";
 
 function summarize(allEvents: any[]) {
   const totalViews = allEvents.length;
@@ -57,6 +58,7 @@ export default async function SiteDashboard({
         ))}
       </ul>
       <ClearDataButton siteId={siteId} />
+      <ZoomableViewsChart siteId={siteId} />
     </div>
   );
 }
