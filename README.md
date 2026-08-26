@@ -67,12 +67,6 @@ The ingest key is sent to the browser with each event. It is not your dashboard 
 
 Run the app locally to see the dashboard at `/dashboard`.
 
-## Test from GitHub Pages
-
-The `test-site/` folder is a small cross-origin test page. The GitHub Actions workflow publishes it when changes reach `main`.
-
-Open the Pages URL from the workflow deployment and enter your Pulse server URL, site ID, and ingest key. The Pulse server must be reachable over HTTPS. The page does not contain a shared ingest key.
-
 ## License
 
 Pulse is available under the MIT License. See [LICENSE](LICENSE).

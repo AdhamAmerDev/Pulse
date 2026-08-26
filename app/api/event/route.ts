@@ -116,8 +116,11 @@ export async function POST(req: NextRequest) {
 }
 
 export async function OPTIONS() {
-  const response = jsonWithCors(null, { status: 204 });
+  const response = new NextResponse(null, { status: 204 });
+
+  response.headers.set("Access-Control-Allow-Origin", "*");
   response.headers.set("Access-Control-Allow-Methods", "POST, OPTIONS");
   response.headers.set("Access-Control-Allow-Headers", "Content-Type");
+
   return response;
 }
