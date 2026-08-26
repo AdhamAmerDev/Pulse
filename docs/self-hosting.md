@@ -77,6 +77,8 @@ The dashboard is available at `/login`.
 
 The Pulse server must be reachable from the tracked website. `/api/event` allows cross-origin event requests; dashboard and settings endpoints require authentication.
 
+The repository also contains `test-site/` for a quick cross-origin check. It is published through GitHub Pages. Enter the Pulse URL, site ID, and ingest key on the page instead of committing them to the test site.
+
 ## Retention
 
 Retention is set per site in `/dashboard/settings`. Pulse does not run scheduled tasks by itself, so set up the machine running Pulse to call this endpoint once a day:
