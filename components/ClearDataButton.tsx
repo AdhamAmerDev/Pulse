@@ -15,5 +15,12 @@ export default function ClearDataButton({ siteId }: { siteId: string }) {
     router.refresh();
   }
 
-  return <button onClick={handleClear}>Clear All Data</button>;
+  return (
+    <button
+      onClick={handleClear}
+      className="text-[13px] text-muted transition-colors hover:text-danger"
+    >
+      Clear data
+    </button>
+  );
 }

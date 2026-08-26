@@ -3,6 +3,16 @@ import { db } from "@/lib/db";
 import { events, sites } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { isRateLimited } from "@/lib/security/rateLimit";
+import { createHash } from "crypto";
+
+function getVisitorHash(req: NextRequest): string {
+  const ip = req.headers.get("x-forwarded-for") ?? "unknown";
+  const userAgent = req.headers.get("user-agent") ?? "unknown";
+  const dailySalt = new Date().toISOString().slice(0, 10); // rotates every day
+  return createHash("sha256")
+    .update(`${dailySalt}:${ip}:${userAgent}`)
+    .digest("hex");
+}
 
 type EventPayload = {
   siteId: string;
@@ -72,28 +82,34 @@ export async function POST(req: NextRequest) {
   }
 
   const [site] = await db.select().from(sites).where(eq(sites.id, body.siteId));
-
   if (!site || site.ingestKey !== body.ingestKey) {
     return jsonWithCors({ error: "unknown site" }, { status: 404 });
   }
 
+  let normalizedUrl = body.url;
+  let normalizedReferrer = body.referrer ?? null;
+
   try {
     const pageUrl = new URL(body.url);
-    body.url = `${pageUrl.origin}${pageUrl.pathname}`.slice(0, 2048);
-    if (body.referrer && body.referrer !== "direct") {
-      const referrer = new URL(body.referrer);
-      body.referrer = `${referrer.origin}${referrer.pathname}`.slice(0, 2048);
+    normalizedUrl = `${pageUrl.origin}${pageUrl.pathname}`.slice(0, 2048);
+    if (normalizedReferrer && normalizedReferrer !== "direct") {
+      const referrer = new URL(normalizedReferrer);
+      normalizedReferrer = `${referrer.origin}${referrer.pathname}`.slice(
+        0,
+        2048,
+      );
     }
   } catch {
-    body.referrer = "direct";
+    normalizedReferrer = "direct";
   }
 
   await db.insert(events).values({
     siteId: body.siteId,
     type: body.type,
-    url: body.url,
-    referrer: body.referrer,
+    url: normalizedUrl,
+    referrer: normalizedReferrer,
     device: body.device,
+    visitorHash: getVisitorHash(req),
   });
 
   return jsonWithCors({ ok: true });

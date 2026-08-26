@@ -1,4 +1,4 @@
-import { count, eq } from "drizzle-orm";
+import { sql, eq, count } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { events } from "@/lib/db/schema";
 
@@ -10,6 +10,15 @@ export type AnalyticsSummary = {
 };
 
 type CountRow = { value: string | null; count: number };
+
+export async function getVisitorCount(siteId: string): Promise<number> {
+  const [{ count }] = await db
+    .select({ count: sql<number>`count(distinct ${events.visitorHash})` })
+    .from(events)
+    .where(eq(events.siteId, siteId));
+
+  return Number(count);
+}
 
 async function getCounts(
   siteId: string,

@@ -63,7 +63,6 @@ export default function ZoomableViewsChartInner({
   siteId: string;
 }) {
   const [data, setData] = useState<Point[]>([]);
-  const [loading, setLoading] = useState(false);
   const [levelIndex, setLevelIndex] = useState(1);
   const [initialCenter] = useState(() => Date.now());
   const initialHalf = WINDOW_MS["day"] / 2;
@@ -98,7 +97,6 @@ export default function ZoomableViewsChartInner({
       setWindowStart(start);
       setWindowEnd(end);
 
-      setLoading(true);
       try {
         const res = await fetch(
           `/api/sites/${siteId}/timeseries?start=${new Date(start).toISOString()}&end=${new Date(end).toISOString()}&granularity=${level}&tz=${encodeURIComponent(tz)}`,
@@ -114,8 +112,6 @@ export default function ZoomableViewsChartInner({
         centerRef.current = newCenter;
       } catch (error) {
         if ((error as Error).name !== "AbortError") throw error;
-      } finally {
-        if (thisRequestId === requestIdRef.current) setLoading(false);
       }
     },
     [siteId],
@@ -170,8 +166,8 @@ export default function ZoomableViewsChartInner({
       {
         label: "Views",
         data: data.map((d) => d.count),
-        borderColor: "#6366f1",
-        backgroundColor: "rgba(99, 102, 241, 0.1)",
+        borderColor: "#E4572E",
+        backgroundColor: "rgba(228, 87, 46, 0.12)",
         fill: true,
         tension: 0.3,
         pointRadius: 0,
@@ -238,7 +234,6 @@ export default function ZoomableViewsChartInner({
       >
         <Line data={chartData} options={options} />
       </div>
-      {loading && <p>Loading...</p>}
     </div>
   );
 }

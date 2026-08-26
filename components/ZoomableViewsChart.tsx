@@ -6,7 +6,6 @@ const ZoomableViewsChartInner = dynamic(
   () => import("./ZoomableViewsChartInner"),
   {
     ssr: false,
-    loading: () => <p>Loading chart...</p>,
   },
 );
 

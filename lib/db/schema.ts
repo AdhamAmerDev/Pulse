@@ -5,12 +5,14 @@ import {
   timestamp,
   uuid,
   index,
+  integer,
 } from "drizzle-orm/pg-core";
 
 export const sites = pgTable("sites", {
   id: uuid("id").defaultRandom().primaryKey(),
   domain: text("domain").notNull(),
   ingestKey: text("ingest_key").notNull().unique(),
+  retentionDays: integer("retention_days").default(365),
   userId: uuid("user_id")
     .notNull()
     .references(() => users.id),
@@ -33,6 +35,7 @@ export const events = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
+    visitorHash: text("visitor_hash"),
   },
   (table) => ({
     siteIdIdx: index("site_id_idx").on(table.siteId),

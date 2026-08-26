@@ -1,0 +1,1 @@
+ALTER TABLE "sites" ADD COLUMN "retention_days" integer DEFAULT 365;

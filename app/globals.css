@@ -1,1 +1,58 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap");
 @import "tailwindcss";
+
+@theme {
+  --color-paper: #faf6f1;
+  --color-paper-grid: #efe6de;
+  --color-border: #e8dcd3;
+  --color-ink: #2b2622;
+  --color-muted: #8a8078;
+  --color-pulse: #e4572e;
+  --color-vital: #1f7a6c;
+  --color-danger: #b23a2e;
+  --color-danger-bg: #f7e8e4;
+  --color-success: #1f7a6c;
+  --color-success-bg: #e4f0ec;
+
+  --font-sans: "IBM Plex Sans", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+}
+
+.dark {
+  --color-paper: #14100d;
+  --color-paper-grid: #241d18;
+  --color-border: #2e2620;
+  --color-ink: #f3ece5;
+  --color-muted: #9a8f84;
+  --color-pulse: #ff7a52;
+  --color-vital: #3fcdb0;
+  --color-danger: #ff806f;
+  --color-danger-bg: #351d18;
+  --color-success: #3fcdb0;
+  --color-success-bg: #17352f;
+}
+
+@keyframes pulse-beat {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.animate-pulse-beat {
+  animation: pulse-beat 1.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-pulse-beat {
+    animation: none;
+  }
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+}
