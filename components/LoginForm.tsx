@@ -21,7 +21,11 @@ export default function LoginForm() {
     });
 
     if (result?.error) {
-      setError("Invalid email or password");
+      setError(
+        result.code === "rate_limited"
+          ? "Too many login attempts. Please try again in 15 minutes."
+          : "Invalid email or password",
+      );
       return;
     }
 

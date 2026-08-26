@@ -1,41 +1,32 @@
 import ClearDataButton from "@/components/ClearDataButton";
 import { db } from "../../../lib/db";
-import { events } from "../../../lib/db/schema";
+import { sites } from "../../../lib/db/schema";
 import { eq } from "drizzle-orm";
 import ZoomableViewsChart from "@/components/ZoomableViewsChart";
-
-function summarize(allEvents: any[]) {
-  const totalViews = allEvents.length;
-
-  const viewsByUrl: Record<string, number> = {};
-  for (const event of allEvents) {
-    viewsByUrl[event.url] = (viewsByUrl[event.url] || 0) + 1;
-  }
-
-  const viewsByDevice: Record<string, number> = {};
-  for (const event of allEvents) {
-    viewsByDevice[event.device] = (viewsByDevice[event.device] || 0) + 1;
-  }
-
-  return { totalViews, viewsByUrl, viewsByDevice };
-}
+import { auth } from "@/auth";
+import { notFound, redirect } from "next/navigation";
+import Link from "next/link";
+import { summarizeSite } from "@/lib/analytics/summarize";
+import RealtimeCounter from "@/components/RealtimeCounter";
 
 export default async function SiteDashboard({
   params,
 }: {
   params: Promise<{ siteId: string }>;
 }) {
-  const { siteId } = await params;
+  const session = await auth();
+  if (!session?.user?.id) redirect("/login");
 
-  const siteEvents = await db
-    .select()
-    .from(events)
-    .where(eq(events.siteId, siteId));
-  const { totalViews, viewsByUrl, viewsByDevice } = summarize(siteEvents);
+  const { siteId } = await params;
+  const [site] = await db.select().from(sites).where(eq(sites.id, siteId));
+  if (!site || site.userId !== session.user.id) notFound();
+
+  const { totalViews, viewsByUrl, viewsByDevice, viewsByReferrer } =
+    await summarizeSite(siteId);
 
   return (
     <div>
-      <a href="/dashboard">← Back to all sites</a>
+      <Link href="/dashboard">← Back to all sites</Link>
       <h1>Site Stats</h1>
 
       <h2>Total Views: {totalViews}</h2>
@@ -57,8 +48,17 @@ export default async function SiteDashboard({
           </li>
         ))}
       </ul>
+      <h3>Top Referrers</h3>
+      <ul>
+        {Object.entries(viewsByReferrer).map(([referrer, count]) => (
+          <li key={referrer}>
+            {referrer}: {count}
+          </li>
+        ))}
+      </ul>
       <ClearDataButton siteId={siteId} />
       <ZoomableViewsChart siteId={siteId} />
+      <RealtimeCounter siteId={siteId} />
     </div>
   );
 }

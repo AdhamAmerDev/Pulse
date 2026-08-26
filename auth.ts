@@ -1,9 +1,11 @@
 import NextAuth from "next-auth";
+import { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { db } from "./lib/db";
 import { users } from "./lib/db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcrypt";
+import { isRateLimited } from "./lib/security/rateLimit";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -13,8 +15,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: {},
       },
       authorize: async (credentials) => {
-        const email = credentials.email as string;
-        const password = credentials.password as string;
+        const email =
+          typeof credentials.email === "string"
+            ? credentials.email.trim().toLowerCase()
+            : "";
+        const password =
+          typeof credentials.password === "string" ? credentials.password : "";
+        if (!email || !password) return null;
+        if (isRateLimited(`login:${email}`, 6, 15 * 60_000)) {
+          const error = new CredentialsSignin();
+          error.code = "rate_limited";
+          throw error;
+        }
 
         const [user] = await db
           .select()

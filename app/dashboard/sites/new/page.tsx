@@ -1,9 +1,11 @@
 "use client";
 import { useState } from "react";
 
+type CreatedSite = { id?: string; ingestKey?: string; error?: string };
+
 export default function NewSite() {
   const [domain, setDomain] = useState("");
-  const [createdSite, setCreatedSite] = useState<any>(null);
+  const [createdSite, setCreatedSite] = useState<CreatedSite | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -38,7 +40,7 @@ export default function NewSite() {
           <p>Site ID: {createdSite.id}</p>
           <p>Embed this on your website:</p>
           <pre>
-            {`<script src="http://localhost:3000/pulse.js" data-site="${createdSite.id}"></script>`}
+            {`<script src="${process.env.NEXT_PUBLIC_APP_URL || ""}/pulse.js" data-site="${createdSite.id}" data-key="${createdSite.ingestKey}"></script>`}
           </pre>
         </div>
       )}
