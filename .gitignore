@@ -40,3 +40,5 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+AGENT_HANDOFF.md
+AGENT_CONTEXT.md
